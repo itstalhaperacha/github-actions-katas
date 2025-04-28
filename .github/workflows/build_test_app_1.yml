@@ -1,5 +1,14 @@
 name: Main workflow
 on: push
+
+env: # Set the secret as an input
+  DISABLE_LINTING: true
+  # we are creating custom environment variables from context in github, these variables are then used by the scripts in our code base
+  docker_username: ${{ github.actor }} # using context, using github object
+  docker_password: ${{ secrets.GITHUB_TOKEN }} # using context object named secret to access available secret to runner
+  GIT_COMMIT: ${{ github.sha }} # commit sha that triggered the workflow
+
+
 jobs:
   Build:
     runs-on: ubuntu-latest
@@ -18,6 +27,7 @@ jobs:
           include-hidden-files: true
   Linting:
       name: Lint
+      if: env.DISABLE_LINTING != ${{ true }}
       runs-on: ubuntu-latest
       needs: Build  # wait for build to complete because we need the artifact from build step
 
@@ -40,3 +50,21 @@ jobs:
             GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
             DEFAULT_BRANCH: main
             DISABLE_ERRORS: true
+            
+  Docker-Image:
+      name: Build Application as docker image and push to GHCR
+      runs-on: ubuntu-latest
+      needs: [Build]  # wait for build to complete 
+      permissions:
+        packages: write 
+      
+      steps: 
+        - name: download source code using artifact instead of cloning repo/checking out code
+          uses: actions/download-artifact@v4
+          with: 
+            name: code 
+            path: .  
+        - name: build docker
+          run: bash ci/build-docker.sh # using bash here to bypass file permissions, otherwise we will get a permission denied error
+        - name: push docker  # this image will now be pusehd to the GitHub container registry and can be found in the Packages tab
+          run: bash ci/push-docker.sh
