@@ -10,3 +10,10 @@ jobs:
       - run: ci/build-app.sh
       - name: test my code
         run: ci/unit-test-app.sh
+      - name: Upload my Repo
+        uses: actions/upload-artifact@v4      
+        with: # Parameters for the action
+          name: code # Name of the artifact to upload. Optional. Default is 'artifact
+          path: . # A file, directory or wildcard pattern that describes what to upload. Required.
+          include-hidden-files: true
+  
