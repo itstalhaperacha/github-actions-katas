@@ -75,6 +75,12 @@ jobs:
         needs: [Docker-Image]  # wait for the application to be ready so that it can be tested
 
         steps:
+          # we still need the source code to use the ci/component-test.sh file to test the docker image (docker image will be fetched from registry)
+          - name: download source code using artifact instead of cloning repo/checking out code
+            uses: actions/download-artifact@v4
+            with: 
+              name: code 
+              path: .  
           - name: Execute component test
             run: bash ci/component-test.sh
   Performance-test:
@@ -83,5 +89,11 @@ jobs:
         needs: [Docker-Image]  # wait for the application to be ready so that it can be tested
 
         steps:
+          # we still need the source code to use the ci/performance-test.sh file to test the docker image (docker image will be fetched from registry)
+          - name: download source code using artifact instead of cloning repo/checking out code
+            uses: actions/download-artifact@v4
+            with: 
+              name: code 
+              path: .          
           - name: Execute performance test
             run: bash ci/performance-test.sh
