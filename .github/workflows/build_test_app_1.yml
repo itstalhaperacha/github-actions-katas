@@ -68,3 +68,20 @@ jobs:
           run: bash ci/build-docker.sh # using bash here to bypass file permissions, otherwise we will get a permission denied error
         - name: push docker  # this image will now be pusehd to the GitHub container registry and can be found in the Packages tab
           run: bash ci/push-docker.sh
+
+  Component-test:
+        name: Job running component tests
+        runs-on: ubuntu-latest
+        needs: [Docker-Image]  # wait for the application to be ready so that it can be tested
+
+        steps:
+          - name: Execute component test
+            run: bash ci/component-test.sh
+  Performance-test:
+        name: Job running performance tests
+        runs-on: ubuntu-latest
+        needs: [Docker-Image]  # wait for the application to be ready so that it can be tested
+
+        steps:
+          - name: Execute performance test
+            run: bash ci/performance-test.sh
