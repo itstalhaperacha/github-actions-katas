@@ -1,6 +1,9 @@
 name: Main workflow
-on: push
-
+on: 
+  push:
+    branches:
+      - 'main'
+    
 env: # Set the secret as an input
   DISABLE_LINTING: true
   # we are creating custom environment variables from context in github, these variables are then used by the scripts in our code base
