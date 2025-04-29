@@ -1,13 +1,21 @@
 name: Main workflow
-on: push
+on: 
+   push:
+     branches:
+       - 'main'
+   pull_request:
+     branches: [ "main" ]
+  # merge_group:
+   #  types: [checks_requested]
+ 
 
 env: # Set the secret as an input
   DISABLE_LINTING: true
   # we are creating custom environment variables from context in github, these variables are then used by the scripts in our code base
   docker_username: ${{ github.actor }} # using context, using github object
   docker_password: ${{ secrets.GITHUB_TOKEN }} # using context object named secret to access available secret to runner
-  GIT_COMMIT: ${{ github.sha }} # commit sha that triggered the workflow
-
+  GIT_COMMIT: ${{ github.event.pull_request.head.sha || github.sha }}  # solves issue of correct git commit in case of pull request and the commit comming from temporary merge branch
+  # GIT_COMMIT: ${{ github.sha }} # commit sha that triggered the workflow
 
 jobs:
   Build:
