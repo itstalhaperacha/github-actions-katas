@@ -1,5 +1,5 @@
 name: Main workflow
-on: push
+on: [workflow_dispatch] #push
 
 env: # Set the secret as an input
   DISABLE_LINTING: true
