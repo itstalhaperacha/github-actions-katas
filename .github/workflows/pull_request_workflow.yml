@@ -14,8 +14,8 @@ env: # Set the secret as an input
   # we are creating custom environment variables from context in github, these variables are then used by the scripts in our code base
   docker_username: ${{ github.actor }} # using context, using github object
   docker_password: ${{ secrets.GITHUB_TOKEN }} # using context object named secret to access available secret to runner
-  #GIT_COMMIT: ${{ github.sha }} # commit sha that triggered the workflow
-  GIT_COMMIT: ${{ github.event.pull_request.head.sha || github.sha }}
+  GIT_COMMIT: ${{ github.sha }} # commit sha that triggered the workflow
+  #GIT_COMMIT: ${{ github.event.pull_request.head.sha || github.sha }}
 
 jobs:
   Build:
@@ -23,12 +23,7 @@ jobs:
     container: gradle:6-jdk11
     steps:
       - name: Clone down repository
-        uses: actions/checkout@v4
-        with:
-          ref: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.ref || github.ref_name }}
-          repository: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name || github.repository }}
-          fetch-depth: 0
-
+        uses: actions/checkout@v4      
       - run: ci/build-app.sh
       - name: test my code
         run: ci/unit-test-app.sh
@@ -52,16 +47,21 @@ jobs:
 
       steps: 
         - name: Clone down repository
-          uses: actions/checkout@v4
-          with:
-            ref: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.ref || github.ref_name }}
-            repository: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name || github.repository }}
-            fetch-depth: 0
+          uses: actions/checkout@v4  
+          
+        #- name: Clone down repository
+         # uses: actions/checkout@v4
+         # with:
+        #    ref: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.ref || github.ref_name }}
+         #   repository: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name || github.repository }}
+         #   fetch-depth: 0
+         
         #- name: download source code using artifact instead of cloning repo/checking out code
         #  uses: actions/download-artifact@v4
         #  with: 
         #    name: code 
         #    path: .
+        
         - name: Run Super Linter
           uses: super-linter/super-linter@v7.3.0 # x-release-please-version
           env:
